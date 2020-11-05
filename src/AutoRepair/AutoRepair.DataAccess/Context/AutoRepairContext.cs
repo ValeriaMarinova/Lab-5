@@ -25,7 +25,7 @@ namespace AutoRepair.DataAccess.Context
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<Part> Parts { get; set; }
-        public virtual DbSet<RepairItem> Repairitems { get; set; }
+        public virtual DbSet<RepairItem> RepairItems { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<Worker> Workers { get; set; }
 
