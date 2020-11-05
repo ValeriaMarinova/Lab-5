@@ -8,7 +8,8 @@ namespace AutoRepair
     {
         static void Main(string[] args)
         {
-            Scenarios.FillDatabase();
+            //Scenarios.FillDatabase();
+            Scenarios.ExampleOfOrderWorkflow();
         }
     }
 }
