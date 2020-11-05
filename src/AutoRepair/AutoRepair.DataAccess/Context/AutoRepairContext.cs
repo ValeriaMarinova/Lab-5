@@ -7,7 +7,6 @@ namespace AutoRepair.DataAccess.Context
     {
         public AutoRepairContext()
         {
-            Database.EnsureCreated();
         }
 
         public AutoRepairContext(DbContextOptions<AutoRepairContext> options) : base(options)
