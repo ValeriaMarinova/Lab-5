@@ -7,13 +7,13 @@ namespace AutoRepair.DataAccess.Domain
     {
         public Part()
         {
-            Repairitems = new HashSet<RepairItem>();
+            RepairItems = new HashSet<RepairItem>();
         }
 
         public int Id { get; set; }
         public string Name { get; set; }
         public double Price { get; set; }
 
-        public virtual ICollection<RepairItem> Repairitems { get; set; }
+        public virtual ICollection<RepairItem> RepairItems { get; set; }
     }
 }

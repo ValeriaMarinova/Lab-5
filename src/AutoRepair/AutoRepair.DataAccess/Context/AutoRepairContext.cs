@@ -104,13 +104,13 @@ namespace AutoRepair.DataAccess.Context
                     .HasName("FK_RepairItems_Parts_idx");
 
                 entity.HasOne(d => d.Order)
-                    .WithMany(p => p.Repairitems)
+                    .WithMany(p => p.RepairItems)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RepairItems_Orders");
 
                 entity.HasOne(d => d.Part)
-                    .WithMany(p => p.Repairitems)
+                    .WithMany(p => p.RepairItems)
                     .HasForeignKey(d => d.PartId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RepairItems_Parts");

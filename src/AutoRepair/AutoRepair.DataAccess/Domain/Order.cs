@@ -7,7 +7,7 @@ namespace AutoRepair.DataAccess.Domain
     {
         public Order()
         {
-            Repairitems = new HashSet<RepairItem>();
+            RepairItems = new HashSet<RepairItem>();
         }
 
         public int Id { get; set; }
@@ -20,6 +20,6 @@ namespace AutoRepair.DataAccess.Domain
         public virtual Customer Customer { get; set; }
         public virtual Vehicle Vehicle { get; set; }
         public virtual Worker Worker { get; set; }
-        public virtual ICollection<RepairItem> Repairitems { get; set; }
+        public virtual ICollection<RepairItem> RepairItems { get; set; }
     }
 }
