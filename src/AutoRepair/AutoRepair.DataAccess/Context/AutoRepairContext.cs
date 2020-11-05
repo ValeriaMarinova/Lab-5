@@ -9,6 +9,15 @@ namespace AutoRepair.DataAccess.Context
         {
         }
 
+        public AutoRepairContext(bool resetDatabase) : this()
+        {
+            if (resetDatabase)
+            {
+                Database.EnsureDeleted();
+                Database.EnsureCreated();
+            }
+        }
+
         public AutoRepairContext(DbContextOptions<AutoRepairContext> options) : base(options)
         {
         }
