@@ -7,5 +7,6 @@ namespace AutoRepair.DataAccess.Services.Interfaces
         void Create(string name, string address);
         Customer Get(string name);
         void Delete(string name);
+        void DeleteAllByName(string pattern);
     }
 }

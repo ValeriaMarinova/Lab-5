@@ -38,5 +38,13 @@ namespace AutoRepair.DataAccess.Services
         {
             return _context.Customers.FirstOrDefault(x => x.Name == name);
         }
+
+        public void DeleteAllByName(string pattern)
+        {
+            var customers = _context.Customers.Where(x => x.Name.Contains(pattern));
+
+            _context.RemoveRange(customers);
+            _context.SaveChanges();
+        }
     }
 }
