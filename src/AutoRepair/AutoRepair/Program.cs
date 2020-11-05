@@ -9,7 +9,8 @@ namespace AutoRepair
         static void Main(string[] args)
         {
             //Scenarios.FillDatabase();
-            Scenarios.ExampleOfOrderWorkflow();
+            //Scenarios.ExampleOfOrderWorkflow();
+            Scenarios.MeasureTime();
         }
     }
 }

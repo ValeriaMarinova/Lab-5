@@ -2,6 +2,8 @@
 using AutoRepair.DataAccess.Domain;
 using AutoRepair.DataAccess.Services;
 using AutoRepair.DataAccess.Services.Interfaces;
+using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace AutoRepair
@@ -23,7 +25,7 @@ namespace AutoRepair
                 vehiclesService.Create("Ford", "F-Series", "798 PAK", 2007);
                 vehiclesService.Create("Chevrolet", "Silverado", "GHT430", 2003);
                 vehiclesService.Create("Suzuki", "Aerio", "50D24H8", 2011);
-                
+
                 //Заполняем список запчастей
                 IPartsService partsService = new PartsService(context);
                 partsService.Create("Front Clip", 5);
@@ -82,6 +84,38 @@ namespace AutoRepair
 
                 //Для того, чтобы перезапускать пример, удалим сохраненные данные
                 ordersService.DeleteOrder(order);
+            }
+        }
+
+        public static void MeasureTime()
+        {
+            using (var context = new AutoRepairContext())
+            {
+                //Вставим много записей в базу
+                ICustomersService customersService = new CustomersService(context);
+
+                for (int i = 0; i < 1000; i++)
+                {
+                    customersService.Create("John Doe " + i, "NYC");
+                }
+
+                var r = new Random();
+
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                for (int i = 0; i < 100; i++)
+                {
+                    var randomNumber = r.Next(0, 1000);
+                    var randomCustomer = customersService.Get("John Doe " + randomNumber);
+                }
+                stopwatch.Stop();
+                Console.WriteLine(stopwatch.ElapsedTicks);
+
+                //Удалим все вставленные записи
+                for (int i = 0; i < 1000; i++)
+                {
+                    customersService.Delete("John Doe " + i);
+                }
             }
         }
     }
