@@ -25,7 +25,7 @@ namespace AutoRepair.DataAccess.Services
 
         public void Delete(string name)
         {
-            var part = _context.Parts.FirstOrDefault(c => c.Name == name);
+            var part = _context.Parts.FirstOrDefault(x => x.Name == name);
 
             if (part != null)
             {
@@ -36,7 +36,7 @@ namespace AutoRepair.DataAccess.Services
 
         public Part Get(string name)
         {
-            return _context.Parts.FirstOrDefault(c => c.Name == name);
+            return _context.Parts.FirstOrDefault(x => x.Name == name);
         }
     }
 }

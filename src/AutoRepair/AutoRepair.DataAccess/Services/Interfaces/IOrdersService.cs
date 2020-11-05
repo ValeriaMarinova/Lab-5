@@ -10,5 +10,6 @@ namespace AutoRepair.DataAccess.Services.Interfaces
         void AddRepairSummary(Order order, string repairResultDescription = "Done");
         double GetTotalCost(Order order);
         void SaveOrder(Order order);
+        void DeleteOrder(Order order);
     }
 }

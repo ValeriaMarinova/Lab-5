@@ -56,5 +56,13 @@ namespace AutoRepair.DataAccess.Services
         {
             _context.SaveChanges();
         }
+
+        public void DeleteOrder(Order order)
+        {
+            _context.RepairItems.RemoveRange(order.RepairItems);
+            _context.Orders.Remove(order);
+
+            _context.SaveChanges();
+        }
     }
 }

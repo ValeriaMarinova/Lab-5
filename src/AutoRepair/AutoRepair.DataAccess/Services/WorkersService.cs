@@ -2,6 +2,7 @@
 using AutoRepair.DataAccess.Domain;
 using AutoRepair.DataAccess.Services.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AutoRepair.DataAccess.Services
@@ -25,7 +26,7 @@ namespace AutoRepair.DataAccess.Services
 
         public void Delete(string name)
         {
-            var worker = _context.Workers.FirstOrDefault(c => c.Name == name);
+            var worker = _context.Workers.FirstOrDefault(x => x.Name == name);
 
             if (worker != null)
             {
@@ -36,7 +37,12 @@ namespace AutoRepair.DataAccess.Services
 
         public Worker Get(string name)
         {
-            return _context.Workers.FirstOrDefault(c => c.Name == name);
+            return _context.Workers.FirstOrDefault(x => x.Name == name);
+        }
+
+        public ICollection<Worker> GetAllByPosition(string position)
+        {
+            return _context.Workers.Where(x => x.Position == position).ToList();
         }
     }
 }

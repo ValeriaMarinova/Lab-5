@@ -25,7 +25,7 @@ namespace AutoRepair.DataAccess.Services
 
         public void Delete(string name)
         {
-            var customer = _context.Customers.FirstOrDefault(c => c.Name == name);
+            var customer = _context.Customers.FirstOrDefault(x => x.Name == name);
 
             if (customer != null)
             {
@@ -36,7 +36,7 @@ namespace AutoRepair.DataAccess.Services
 
         public Customer Get(string name)
         {
-            return _context.Customers.FirstOrDefault(c => c.Name == name);
+            return _context.Customers.FirstOrDefault(x => x.Name == name);
         }
     }
 }

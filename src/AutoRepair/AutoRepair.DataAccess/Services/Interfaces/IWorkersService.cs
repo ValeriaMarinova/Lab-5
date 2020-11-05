@@ -1,4 +1,5 @@
 ﻿using AutoRepair.DataAccess.Domain;
+using System.Collections.Generic;
 
 namespace AutoRepair.DataAccess.Services.Interfaces
 {
@@ -6,6 +7,7 @@ namespace AutoRepair.DataAccess.Services.Interfaces
     {
         void Create(string name, string position);
         Worker Get(string name);
+        ICollection<Worker> GetAllByPosition(string position);
         void Delete(string name);
     }
 }
