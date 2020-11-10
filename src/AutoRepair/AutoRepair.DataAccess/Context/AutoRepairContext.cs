@@ -5,12 +5,13 @@ namespace AutoRepair.DataAccess.Context
 {
     public partial class AutoRepairContext : DbContext
     {
-        public AutoRepairContext()
-        {
-        }
+        private readonly string _connectionString;
 
-        public AutoRepairContext(bool resetDatabase) : this()
+        public AutoRepairContext(string connectionString) : this(connectionString, false) { }
+        public AutoRepairContext(string connectionString, bool resetDatabase)
         {
+            _connectionString = connectionString;
+
             if (resetDatabase)
             {
                 Database.EnsureDeleted();
@@ -18,9 +19,6 @@ namespace AutoRepair.DataAccess.Context
             }
         }
 
-        public AutoRepairContext(DbContextOptions<AutoRepairContext> options) : base(options)
-        {
-        }
 
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
@@ -33,7 +31,7 @@ namespace AutoRepair.DataAccess.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("Database=autorepair;Host=localhost;Username=postgres;Password=admin;");
+                optionsBuilder.UseNpgsql(_connectionString);
             }
         }
 

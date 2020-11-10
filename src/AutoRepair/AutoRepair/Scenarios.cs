@@ -10,9 +10,9 @@ namespace AutoRepair
 {
     class Scenarios
     {
-        public static void FillDatabase()
+        public static void FillDatabase(string connectionString)
         {
-            using (var context = new AutoRepairContext(resetDatabase: true))
+            using (var context = new AutoRepairContext(connectionString, resetDatabase: true))
             {
                 //Заполняем заказчиков
                 ICustomersService customersService = new CustomersService(context);
@@ -44,9 +44,9 @@ namespace AutoRepair
             }
         }
 
-        public static void ExampleOfOrderWorkflow()
+        public static void ExampleOfOrderWorkflow(string connectionString)
         {
-            using (var context = new AutoRepairContext())
+            using (var context = new AutoRepairContext(connectionString))
             {
                 //Берем заказчика
                 ICustomersService customersService = new CustomersService(context);
@@ -87,9 +87,9 @@ namespace AutoRepair
             }
         }
 
-        public static void MeasureTime()
+        public static void MeasureTime(string connectionString)
         {
-            using (var context = new AutoRepairContext())
+            using (var context = new AutoRepairContext(connectionString))
             {
                 //Вставим много записей в базу
                 ICustomersService customersService = new CustomersService(context);
