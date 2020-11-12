@@ -1,8 +1,8 @@
 ﻿using AutoRepair.DataAccess.Context;
+using AutoRepair.DataAccess.Domain;
 using AutoRepair.DataAccess.Services;
 using AutoRepair.DataAccess.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Diagnostics;
 using System.Linq;
 
@@ -13,37 +13,35 @@ namespace AutoRepair
         /// <summary>
         /// Пересоздает базу (удаляет и создает заново), заполняет её тестовыми данными
         /// </summary>
-        public static void FillDatabase(string connectionString)
+        public static void ResetAndFillDatabase(string connectionString)
         {
             using (var context = new AutoRepairContext(connectionString, resetDatabase: true))
             {
                 //Заполняем заказчиков
-                ICustomersService customersService = new CustomersService(context);
-                customersService.Create("Hedy Greene", "Ap #696-3279 Viverra. Avenue Latrobe DE 38100");
-                customersService.Create("Joan Romero", "Lacinia Avenue Idaho Falls Ohio");
-                customersService.Create("Davis Patrick", "2546 Sociosqu Rd. Bethlehem Utah");
+                context.Customers.Add(new Customer() { Name = "Hedy Greene", Address = "Ap #696-3279 Viverra. Avenue Latrobe DE 38100" });
+                context.Customers.Add(new Customer() { Name = "Joan Romero", Address = "Lacinia Avenue Idaho Falls Ohio" });
+                context.Customers.Add(new Customer() { Name = "Davis Patrick", Address = "2546 Sociosqu Rd. Bethlehem Utah" });
 
                 //Заполняем машины
-                IVehiclesService vehiclesService = new VehiclesService(context);
-                vehiclesService.Create("Ford", "F-Series", "798 PAK", 2007);
-                vehiclesService.Create("Chevrolet", "Silverado", "GHT430", 2003);
-                vehiclesService.Create("Suzuki", "Aerio", "50D24H8", 2011);
+                context.Vehicles.Add(new Vehicle() { Make = "Ford", Model = "F-Series", RegistrationPlate = "798 PAK", Year = 2007 });
+                context.Vehicles.Add(new Vehicle() { Make = "Chevrolet", Model = "Silverado", RegistrationPlate = "GHT430", Year = 2003 });
+                context.Vehicles.Add(new Vehicle() { Make = "Suzuki", Model = "Aerio", RegistrationPlate = "50D24H8", Year = 2011 });
 
                 //Заполняем список запчастей
-                IPartsService partsService = new PartsService(context);
-                partsService.Create("Front Clip", 5);
-                partsService.Create("Airbag sensor", 10);
-                partsService.Create("Starter Pinion Gear", 50);
-                partsService.Create("Differential", 1500);
-                partsService.Create("Backup Camera", 115);
-                partsService.Create("Door Contact", 75);
+                context.Parts.Add(new Part() { Name = "Front Clip", Price = 5 });
+                context.Parts.Add(new Part() { Name = "Airbag sensor", Price = 10 });
+                context.Parts.Add(new Part() { Name = "Starter Pinion Gear", Price = 50 });
+                context.Parts.Add(new Part() { Name = "Differential", Price = 1500 });
+                context.Parts.Add(new Part() { Name = "Backup Camera", Price = 115 });
+                context.Parts.Add(new Part() { Name = "Door Contact", Price = 75 });
 
                 //Заполняем механиков
-                IWorkersService workersService = new WorkersService(context);
-                workersService.Create("Leilani Boyer", "Mechanic");
-                workersService.Create("Edward Nieves", "Mechanic");
-                workersService.Create("Christian Emerson", "St. Mechanic");
-                workersService.Create("Raymond Levy", "Jr. Mechanic");
+                context.Workers.Add(new Worker() { Name = "Leilani Boyer", Position = "Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Edward Nieves", Position = "Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Christian Emerson", Position = "St. Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Raymond Levy", Position = "Jr. Mechanic" });
+
+                context.SaveChanges();
             }
         }
 
@@ -55,27 +53,23 @@ namespace AutoRepair
             using (var context = new AutoRepairContext(connectionString))
             {
                 //Берем заказчика
-                ICustomersService customersService = new CustomersService(context);
-                var customer = customersService.Get("Joan Romero");
+                var customer = context.Customers.First(x => x.Name == "Joan Romero");
 
                 //Берем автомобиль
-                IVehiclesService vehiclesService = new VehiclesService(context);
-                var vehicle = vehiclesService.Get("GHT430");
+                var vehicle = context.Vehicles.First(x => x.RegistrationPlate == "GHT430");
 
                 //Создаем заказ на ремонт автомобиля
                 IOrdersService ordersService = new OrdersService(context);
                 var order = ordersService.OpenOrder(customer, vehicle, "Check engine light is blinking. Please check.");
 
                 //Назначаем первого подходящего мастера нужного уровня на заказ
-                IWorkersService workersService = new WorkersService(context);
-                var mechanic = workersService.GetAllByPosition("Mechanic").First();
+                var mechanic = context.Workers.First(x => x.Position == "Mechanic");
                 ordersService.AssingWorker(order, mechanic);
 
                 //Выбираем детали для ремонта
-                IPartsService partsService = new PartsService(context);
-                var starterGear = partsService.Get("Starter Pinion Gear");
-                var differential = partsService.Get("Differential");
-                var clip = partsService.Get("Front Clip");
+                var starterGear = context.Parts.First(x => x.Name == "Starter Pinion Gear");
+                var differential = context.Parts.First(x => x.Name == "Differential");
+                var clip = context.Parts.First(x => x.Name == "Front Clip");
 
                 //Добавляем в заказ необходимое количество деталей
                 ordersService.AddPart(order, differential, 1);
@@ -98,7 +92,7 @@ namespace AutoRepair
         /// <summary>
         /// Запрос всех данных по заказу из связанных таблиц
         /// </summary>
-        public static void GetFullOrderInformation(string connectionString, out long elapsedTime)
+        public static void GetFullOrderInformationMeasured(string connectionString, out long elapsedTime)
         {
             Stopwatch stopwatch = new Stopwatch();
 
@@ -121,7 +115,7 @@ namespace AutoRepair
         /// <summary>
         /// Запрос стоимости всех запчастей для ремонта
         /// </summary>
-        public static void GetTotalCost(string connectionString, out long elapsedTime)
+        public static void GetTotalCostMeasured(string connectionString, out long elapsedTime)
         {
             Stopwatch stopwatch = new Stopwatch();
 

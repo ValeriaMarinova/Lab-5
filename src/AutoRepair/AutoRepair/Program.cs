@@ -41,8 +41,8 @@ namespace AutoRepair
 
             for (int i = 0; i < times; i++)
             {
-                Scenarios.GetFullOrderInformation(connectionString, out temp);
-                Scenarios.GetTotalCost(connectionString, out temp);
+                Scenarios.GetFullOrderInformationMeasured(connectionString, out temp);
+                Scenarios.GetTotalCostMeasured(connectionString, out temp);
                 average += temp;
             }
 
