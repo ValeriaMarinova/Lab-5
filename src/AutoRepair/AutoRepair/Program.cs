@@ -25,29 +25,6 @@ namespace AutoRepair
             CRUDExampleOnWorkers(connectionString);
 
             CRUDExampleOnPartsMeasured(connectionString);
-
-
-            long temp;
-            long average = 0;
-            int times = 5;
-
-            //Scenarios.FillDatabase(connectionString);
-            //Scenarios.ExampleOfOrderWorkflow(connectionString);
-            //Scenarios.GetFullOrderInformation(connectionString, out temp);
-
-            //return;
-            // "прогреваем" контекст
-            using (var context = new AutoRepairContext(connectionString)) { context.Parts.FirstOrDefault(x => x.Price > 0); }
-
-            for (int i = 0; i < times; i++)
-            {
-                Scenarios.GetFullOrderInformationMeasured(connectionString, out temp);
-                Scenarios.GetTotalCostMeasured(connectionString, out temp);
-                average += temp;
-            }
-
-            Console.WriteLine(average / times);
-            Console.ReadLine();
         }
 
         #region CRUD examples
