@@ -3,6 +3,7 @@ using AutoRepair.DataAccess.Domain;
 using AutoRepair.DataAccess.Services;
 using AutoRepair.DataAccess.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Diagnostics;
 using System.Linq;
 
@@ -87,12 +88,46 @@ namespace AutoRepair
             }
         }
 
+        /// <summary>
+        /// Форматированный вывод всех записей из таблиц
+        /// </summary>
+        /// <param name="connectionString"></param>
+        public static void GetAllEntries(string connectionString)
+        {
+            using (var context = new AutoRepairContext(connectionString))
+            {
+                var allCustomers = context.Customers.ToList();
+                var allOrders = context.Orders.ToList();
+                var allParts = context.Parts.ToList();
+                var allRepairItems = context.RepairItems.ToList();
+                var allVehicles = context.Vehicles.ToList();
+                var allWorkers = context.Workers.ToList();
+
+                allCustomers.ForEach(customer => Console.WriteLine($"{customer.Id} {customer.Name} {customer.Address}"));
+                Console.WriteLine();
+
+                allOrders.ForEach(order => Console.WriteLine($"{order.Id} customerId: {order.CustomerId} vehicleId: {order.VehicleId} workerId: {order.WorkerId}"));
+                Console.WriteLine();
+
+                allParts.ForEach(part => Console.WriteLine($"{part.Id} {part.Name} {part.Price}"));
+                Console.WriteLine();
+
+                allRepairItems.ForEach(item => Console.WriteLine($"{item.Id} orderId: {item.OrderId} partId: {item.PartId} quantity: {item.Qty}"));
+                Console.WriteLine();
+
+                allVehicles.ForEach(vehicle => Console.WriteLine($"{vehicle.Id} {vehicle.Make} {vehicle.Model} {vehicle.RegistrationPlate} {vehicle.Year}"));
+                Console.WriteLine();
+
+                allWorkers.ForEach(worker => Console.WriteLine($"{worker.Id} {worker.Name} {worker.Position}"));
+            }
+        }
+
         #region Сценарии для замера выполнения запросов
 
         /// <summary>
         /// Запрос всех данных по заказу из связанных таблиц
         /// </summary>
-        public static void GetFullOrderInformationMeasured(string connectionString, out long elapsedTime)
+        public static void GetFullOrderInformationMeasured(string connectionString)
         {
             Stopwatch stopwatch = new Stopwatch();
 
@@ -108,14 +143,26 @@ namespace AutoRepair
                     .First();
 
                 stopwatch.Stop();
-                elapsedTime = stopwatch.ElapsedMilliseconds;
+                var elapsedTime = stopwatch.ElapsedMilliseconds;
+
+                var requestTimeToString = $"Request time is {elapsedTime} ms.";
+                var orderInfoToString = $@"Order details: 
+Id: {order.Id},
+Customer: {order.Customer.Name},
+Vehicle: {order.Vehicle.Make} {order.Vehicle.Model} ({order.Vehicle.RegistrationPlate}),
+Worker: {order.Worker.Name}, {order.Worker.Position},
+Customer's problem: {order.ProblemDescription},
+Solution: {order.Solution}";
+
+                Console.WriteLine(orderInfoToString);
+                Console.WriteLine(requestTimeToString);
             }
         }
 
         /// <summary>
         /// Запрос стоимости всех запчастей для ремонта
         /// </summary>
-        public static void GetTotalCostMeasured(string connectionString, out long elapsedTime)
+        public static void GetTotalCostMeasured(string connectionString)
         {
             Stopwatch stopwatch = new Stopwatch();
 
@@ -123,15 +170,45 @@ namespace AutoRepair
             {
                 stopwatch.Start();
 
-                var order = context.Orders
+                var sum = context.Orders
                     .Include(order => order.RepairItems)
                     .ThenInclude(item => item.Part)
-                    .First();
-
-                var sum = order.RepairItems.Sum(x => x.Part.Price * x.Qty);
+                    .First()
+                    .RepairItems
+                    .Sum(x => x.Part.Price * x.Qty);
 
                 stopwatch.Stop();
-                elapsedTime = stopwatch.ElapsedMilliseconds;
+                var elapsedTime = stopwatch.ElapsedMilliseconds;
+
+                var sumToString = $"Total cost of the order is {sum}";
+                var requestTimeToString = $"Request time is {elapsedTime} ms.";
+
+                Console.WriteLine(sumToString);
+                Console.WriteLine(requestTimeToString);
+            }
+        }
+
+        /// <summary>
+        /// Запрос на вывод самого старого автомобиля
+        /// </summary>
+        public static void GetTheOldestCarMeasured(string connectionString)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+
+            using (var context = new AutoRepairContext(connectionString))
+            {
+                stopwatch.Start();
+
+                var oldestCar = context.Vehicles.OrderBy(x => x.Year).First();
+
+                stopwatch.Stop();
+                var elapsedTime = stopwatch.ElapsedMilliseconds;
+
+                var sumToString = $"The oldest car is {oldestCar.Make} {oldestCar.Model}, year: {oldestCar.Year}";
+                var requestTimeToString = $"Request time is {elapsedTime} ms.";
+
+                Console.WriteLine(sumToString);
+                Console.WriteLine(requestTimeToString);
             }
         }
         #endregion

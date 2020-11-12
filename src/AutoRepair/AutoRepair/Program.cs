@@ -18,13 +18,16 @@ namespace AutoRepair
 
             var connectionString = configuration.GetConnectionString("PostgresAutorepairDB");
 
+            //Scenarios.GetTotalCostMeasured(connectionString);
+            //Scenarios.GetTheOldestCarMeasured(connectionString);
+            //Scenarios.GetFullOrderInformationMeasured(connectionString);
+            //Scenarios.GetAllEntries(connectionString);
+
             //CRUD Examples
             CRUDExampleOnCustomers(connectionString);
             CRUDExampleOnParts(connectionString);
             CRUDExampleOnVehicles(connectionString);
             CRUDExampleOnWorkers(connectionString);
-
-            CRUDExampleOnPartsMeasured(connectionString);
         }
 
         #region CRUD examples
@@ -89,34 +92,5 @@ namespace AutoRepair
             }
         }
         #endregion
-
-        static void CRUDExampleOnPartsMeasured(string connectionString)
-        {
-            using (var context = new AutoRepairContext(connectionString))
-            {
-                var createTime = MeasureHelper.MeasureMilliseconds(() =>
-                {
-                    context.Parts.Add(new Part() { Name = "Gear", Price = 100 }); //Create
-                });
-                context.SaveChanges();
-
-                Part part = null;
-                var readTime = MeasureHelper.MeasureMilliseconds(() =>
-                {
-                    part = context.Parts.First(x => x.Name == "Gear"); //Read
-                });
-
-                var updateTime = MeasureHelper.MeasureMilliseconds(() =>
-                {
-                    part.Price = 150;
-                    context.Update(part); //Update
-                });
-
-                var deleteTime = MeasureHelper.MeasureMilliseconds(() =>
-                {
-                    context.Remove(part); //Delete
-                });
-            }
-        }
     }
 }
