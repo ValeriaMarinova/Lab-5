@@ -1,15 +1,18 @@
 ﻿using AutoRepair.DataAccess.Context;
-using AutoRepair.DataAccess.Domain;
 using AutoRepair.DataAccess.Services;
 using AutoRepair.DataAccess.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Diagnostics;
 using System.Linq;
 
 namespace AutoRepair
 {
-    class Scenarios
+    public static class Scenarios
     {
+        /// <summary>
+        /// Пересоздает базу (удаляет и создает заново), заполняет её тестовыми данными
+        /// </summary>
         public static void FillDatabase(string connectionString)
         {
             using (var context = new AutoRepairContext(connectionString, resetDatabase: true))
@@ -44,6 +47,9 @@ namespace AutoRepair
             }
         }
 
+        /// <summary>
+        /// Пример заполнения всех данных для Заказа на ремонт
+        /// </summary>
         public static void ExampleOfOrderWorkflow(string connectionString)
         {
             using (var context = new AutoRepairContext(connectionString))
@@ -83,40 +89,57 @@ namespace AutoRepair
                 ordersService.SaveOrder(order);
 
                 //Для того, чтобы перезапускать пример, удалим сохраненные данные
-                ordersService.DeleteOrder(order);
+                //ordersService.DeleteOrder(order);
             }
         }
 
-        public static void MeasureTime(string connectionString)
+        #region Сценарии для замера выполнения запросов
+
+        /// <summary>
+        /// Запрос всех данных по заказу из связанных таблиц
+        /// </summary>
+        public static void GetFullOrderInformation(string connectionString, out long elapsedTime)
         {
+            Stopwatch stopwatch = new Stopwatch();
+
             using (var context = new AutoRepairContext(connectionString))
             {
-                //Вставим много записей в базу
-                ICustomersService customersService = new CustomersService(context);
-
-                for (int i = 0; i < 1000; i++)
-                {
-                    customersService.Create("John Doe " + i, "NYC");
-                }
-
-                var r = new Random();
-
-                Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                for (int i = 0; i < 100; i++)
-                {
-                    var randomNumber = r.Next(0, 1000);
-                    var randomCustomer = customersService.Get("John Doe " + randomNumber);
-                }
-                stopwatch.Stop();
-                Console.WriteLine(stopwatch.ElapsedTicks);
 
-                //Удалим все вставленные записи
-                for (int i = 0; i < 1000; i++)
-                {
-                    customersService.Delete("John Doe " + i);
-                }
+                var order = context.Orders
+                    .Include(order => order.Customer)
+                    .Include(order => order.RepairItems)
+                    .Include(order => order.Vehicle)
+                    .Include(order => order.Worker)
+                    .First();
+
+                stopwatch.Stop();
+                elapsedTime = stopwatch.ElapsedMilliseconds;
             }
         }
+
+        /// <summary>
+        /// Запрос стоимости всех запчастей для ремонта
+        /// </summary>
+        public static void GetTotalCost(string connectionString, out long elapsedTime)
+        {
+            Stopwatch stopwatch = new Stopwatch();
+
+            using (var context = new AutoRepairContext(connectionString))
+            {
+                stopwatch.Start();
+
+                var order = context.Orders
+                    .Include(order => order.RepairItems)
+                    .ThenInclude(item => item.Part)
+                    .First();
+
+                var sum = order.RepairItems.Sum(x => x.Part.Price * x.Qty);
+
+                stopwatch.Stop();
+                elapsedTime = stopwatch.ElapsedMilliseconds;
+            }
+        }
+        #endregion
     }
 }
