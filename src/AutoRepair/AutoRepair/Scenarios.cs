@@ -41,6 +41,11 @@ namespace AutoRepair
                 context.Workers.Add(new Worker() { Name = "Edward Nieves", Position = "Mechanic" });
                 context.Workers.Add(new Worker() { Name = "Christian Emerson", Position = "St. Mechanic" });
                 context.Workers.Add(new Worker() { Name = "Raymond Levy", Position = "Jr. Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Tom Adams", Position = "Jr. Mechanic" });
+                context.Workers.Add(new Worker() { Name = "John Patel", Position = "Jr. Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Pat Quinn", Position = "Jr. Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Mike Usman", Position = "Jr. Mechanic" });
+                context.Workers.Add(new Worker() { Name = "Diego Yakub", Position = "Jr. Mechanic" });
 
                 context.SaveChanges();
             }

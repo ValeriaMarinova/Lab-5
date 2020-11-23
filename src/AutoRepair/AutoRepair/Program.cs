@@ -1,7 +1,9 @@
 ﻿using AutoRepair.DataAccess.Context;
 using AutoRepair.DataAccess.Domain;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace AutoRepair
@@ -18,19 +20,107 @@ namespace AutoRepair
 
             var connectionString = configuration.GetConnectionString("PostgresAutorepairDB");
 
-            //Scenarios.GetTotalCostMeasured(connectionString);
-            //Scenarios.GetTheOldestCarMeasured(connectionString);
-            //Scenarios.GetFullOrderInformationMeasured(connectionString);
-            //Scenarios.GetAllEntries(connectionString);
+            //Прогрев контекста
+              using (var context = new AutoRepairContext(connectionString)) { context.Customers.FirstOrDefault(); }
+
+            //Эти запросы пересоздадут базу, заполнят таблицы тестовыми данными
+            //Перед началом демонтрации программы, выполнить ТОЛЬКО их и закомментировать
+            // Scenarios.ResetAndFillDatabase(connectionString);
+            // Scenarios.ExampleOfOrderWorkflow(connectionString);
+
+            //Запросы с замером времени
+             Scenarios.GetTheOldestCarMeasured(connectionString);
+             Scenarios.GetTotalCostMeasured(connectionString);
+             Scenarios.GetFullOrderInformationMeasured(connectionString);
+
+            //  Pagination example
+
+            var pageSize = configuration.GetValue<int>("PageSize");
+            using (var context = new AutoRepairContext(connectionString))
+            {
+
+
+                int itemsCount = context.Workers.Count(); //количество строк в таблице
+                int pagesCount = (int)Math.Ceiling((double)itemsCount / pageSize);
+
+
+                for (int pageNumber = 1; pageNumber <= pagesCount; pageNumber++)
+                {
+                    var itemsOnPage = GetWorkersPage(context, pageNumber, pageSize); //получим элементы со страницы pageNumber
+                    Console.WriteLine($"Page {pageNumber}: " + string.Join(", ", itemsOnPage.Select(x => x.Name))); //выведем только имена
+                }
+            }
 
             //CRUD Examples
-            CRUDExampleOnCustomers(connectionString);
-            CRUDExampleOnParts(connectionString);
-            CRUDExampleOnVehicles(connectionString);
-            CRUDExampleOnWorkers(connectionString);
+            //CRUDExampleOnCustomers(connectionString);
+            //CRUDExampleOnParts(connectionString);
+            //CRUDExampleOnVehicles(connectionString);
+            //CRUDExampleOnWorkers(connectionString);
+            Console.ReadLine();
         }
 
-        #region CRUD examples
+        #region Pagination
+
+        static IEnumerable<Worker> GetWorkersPage(AutoRepairContext context, int page, int pageSize)
+        {
+            var count = context.Workers.Count();
+            var items = context.Workers.Skip((page - 1) * pageSize).Take(pageSize);
+            return items.ToList();
+        }
+
+        static IEnumerable<Vehicle> GetVehiclesPage(AutoRepairContext context, int page, int pageSize)
+        {
+            var count = context.Vehicles.Count();
+            var items = context.Vehicles.Skip((page - 1) * pageSize).Take(pageSize);
+            return items.ToList();
+        }
+        static IEnumerable<Customer> GetCustomersPage(AutoRepairContext context, int page, int pageSize)
+        {
+            var count = context.Customers.Count();
+            var items = context.Customers.Skip((page - 1) * pageSize).Take(pageSize);
+            return items.ToList();
+        }
+        static IEnumerable<Order> GetOrdersPage(AutoRepairContext context, int page, int pageSize)
+        {
+            var count = context.Orders.Count();
+            var items = context.Orders.Skip((page - 1) * pageSize).Take(pageSize);
+            return items.ToList();
+        }
+        static IEnumerable<RepairItem> GetRepairItemsPage(AutoRepairContext context, int page, int pageSize)
+        {
+            var count = context.RepairItems.Count();
+            var items = context.RepairItems.Skip((page - 1) * pageSize).Take(pageSize);
+            return items.ToList();
+        }
+        #endregion
+
+        #region CRUD
+
+        static void CRUDExampleOnParts(string connectionString)
+        {
+            using (var context = new AutoRepairContext(connectionString))
+            {
+                context.Parts.Add(new Part() { Name = "Gear", Price = 100 }); //Create
+                context.SaveChanges();
+                Console.WriteLine("Запись создана");
+                Console.ReadLine();
+
+                var part = context.Parts.First(x => x.Name == "Gear"); //Read
+                Console.WriteLine($"Запись получена: {part.Id} {part.Name} {part.Price}");
+                Console.ReadLine();
+
+                part.Price = 150;
+                context.Update(part); //Update
+                context.SaveChanges();
+                Console.WriteLine("Запись обновлена");
+                Console.ReadLine();
+
+                context.Remove(part); //Delete
+                context.SaveChanges();
+                Console.WriteLine("Запись удалена");
+                Console.ReadLine();
+            }
+        }
 
         static void CRUDExampleOnCustomers(string connectionString)
         {
@@ -46,22 +136,6 @@ namespace AutoRepair
                 context.Remove(customer); //Delete
             }
         }
-
-        static void CRUDExampleOnParts(string connectionString)
-        {
-            using (var context = new AutoRepairContext(connectionString))
-            {
-                context.Parts.Add(new Part() { Name = "Gear", Price = 100 }); //Create
-
-                var part = context.Parts.First(x => x.Name == "Gear"); //Read
-
-                part.Price = 150;
-                context.Update(part); //Update
-
-                context.Remove(part); //Delete
-            }
-        }
-
         static void CRUDExampleOnVehicles(string connectionString)
         {
             using (var context = new AutoRepairContext(connectionString))
@@ -76,7 +150,6 @@ namespace AutoRepair
                 context.Remove(vehicle); //Delete
             }
         }
-
         static void CRUDExampleOnWorkers(string connectionString)
         {
             using (var context = new AutoRepairContext(connectionString))

@@ -39,7 +39,7 @@ namespace AutoRepair.DataAccess.Context
         {
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.ToTable("customers");
+                entity.ToTable("customers").HasIndex(x => x.Id);
 
                 entity.Property(e => e.Address).IsRequired();
 
@@ -50,7 +50,7 @@ namespace AutoRepair.DataAccess.Context
 
             modelBuilder.Entity<Order>(entity =>
             {
-                entity.ToTable("orders");
+                entity.ToTable("orders").HasIndex(x => x.Id);
 
                 entity.HasIndex(e => e.CustomerId)
                     .HasName("FK_Orders_Customers_idx");
@@ -86,14 +86,14 @@ namespace AutoRepair.DataAccess.Context
 
             modelBuilder.Entity<Part>(entity =>
             {
-                entity.ToTable("parts");
+                entity.ToTable("parts").HasIndex(x => x.Id);
 
                 entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<RepairItem>(entity =>
             {
-                entity.ToTable("repairitems");
+                entity.ToTable("repairitems").HasIndex(x => x.Id);
 
                 entity.HasIndex(e => e.OrderId)
                     .HasName("FK_RepairItems_Orders_idx");
@@ -116,7 +116,7 @@ namespace AutoRepair.DataAccess.Context
 
             modelBuilder.Entity<Vehicle>(entity =>
             {
-                entity.ToTable("vehicles");
+                entity.ToTable("vehicles").HasIndex(x => x.Id);
 
                 entity.Property(e => e.Make).IsRequired();
 
@@ -127,7 +127,7 @@ namespace AutoRepair.DataAccess.Context
 
             modelBuilder.Entity<Worker>(entity =>
             {
-                entity.ToTable("workers");
+                entity.ToTable("workers").HasIndex(x => x.Id);
 
                 entity.Property(e => e.Name).IsRequired();
 
